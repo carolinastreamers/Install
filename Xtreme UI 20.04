@@ -4,6 +4,6 @@ Install Xtream-UI R22 on Ubuntu 20.04 Server This is an installation mirror for 
 
 
 run this command
-rm -rf install.py && wget https://github.com/xoceunder/Xtream-UI-install/raw/main/install.py && sudo python3 install.py 
+bash <(wget -qO- https://github.com/amidevous/xtream-ui-beta-install/raw/master/install.sh)
 
 
