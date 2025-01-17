@@ -1,0 +1,162 @@
+Updating to Xtream UI R22F beta version
+First run these commands:
+apt-get install unzip e2fsprogs python-paramiko -y ; rm -rf /home/xtreamcodes/iptv_xtream_codes/admin ; rm -rf /home/xtreamcodes/iptv_xtream_codes/pytools ; wget "https://lofertech.com/xui/update.zip" -O /tmp/update.zip -o /dev/null ; unzip /tmp/update.zip -d /tmp/update/ ; cp -rf /tmp/update/XtreamUI-master/* /home/xtreamcodes/iptv_xtream_codes/
+
+
+Then run following:
+rm -rf /tmp/update/XtreamUI-master && rm /tmp/update.zip ; rm -rf /tmp/update ; sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx ; sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp ; sudo chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb ; sudo wget -q https://lofertech.com/xui/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb ; /home/xtreamcodes/iptv_xtream_codes/start_services.sh
+
+
+
+
+
+
+How to change main server
+
+Go to manage servers page, edit main server and add your new server ip and save it. Never run start_services.sh or any other command.
+Go to settings ==> Backups ==> Create New backup
+Now login to your main server ssh via WinSCP and go to
+/home/xtreamcodes/iptv_xtream_codes/adtools/backups
+
+and download your latest backup locally.
+
+Now download this file locally from your main server and all your LBs
+/home/xtreamcodes/iptv_xtream_codes/nginx/conf/ngix.conf
+
+Now as our main server has now new IP and MySQL password, get main server MySQL password then run this command one by one on each LB to update IP and MySQL Pass
+wget https://raw.githubusercontent.com/shinctl/XtreamUI/master/pytools/config.py && python config.py ENCRYPT
+
+
+
+
+Clearing Panel Logs from MySQL database.
+Login to your main server via PuTTY using root as username and run following commands (pPASSWORD, replace PASSWORD with your own)
+
+mysql -u root -pPASSWORD
+Mysql
+use xtream_iptvpro;
+Mysql
+TRUNCATE panel_logs;
+Mysql
+TRUNCATE client_logs;
+Mysql
+TRUNCATE stream_logs;
+Mysql
+TRUNCATE epg_data;
+Mysql
+exit
+
+
+
+Fixing M3U list import not working:
+Run Command:
+sudo /etc/init.d/mysql restart
+Bash
+Run Command:
+/home/xtreamcodes/iptv_xtream_codes/start_services.sh
+Bash
+Setting up correct order of playlists (like first m3u, then m3u_plus):
+Pls run following commands to get this done:
+
+wget https://lofertech.com/xui/xc_sorted_devices.sql
+Bash
+sudo mysql -u root xtream_iptvpro < /root/xc_sorted_devices.sql
+
+Getting main server MySQL password:
+
+Pls run following command to get your MySQL password.
+
+python /home/xtreamcodes/iptv_xtream_codes/pytools/config.py DECRYPT
+Bash
+OR following
+
+cp -rf /home/xtreamcodes/iptv_xtream_codes/pytools/config.py /root && python config.py DECRYPT && rm -rf /root/config.py && rm -rf /root/install.py
+Bash
+Testing and reloading Ngix upon editing or making changes into the file:
+sudo /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx -t
+Bash
+sudo /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx -s reload
+Bash
+How to exclude some characters from your line’s random username or passwords?
+We need to make changes to function.php file. The file is bit long and is better to edit it with WinSCP or use following command to keep with PuTTY.
+
+nano /home/xtreamcodes/iptv_xtream_codes/admin/function.php
+Bash
+Go to line 480 and try finding
+
+function generateString($strength = 10)
+Bash
+and to the next line is
+
+$input = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+Bash
+So in
+
+$input = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+Bash
+remove all unwanted and save it.
+
+Fixing error 500 on Xtream UI admin:
+There are many reason of this error, we;ll try applying max we can. I’m sharing 2 solutions, one is fixing/updating Geolite2.mmdb file and second is updating panel with fresh files to R22F.
+
+First Run this single command to update Geolite2.mmdb file and check if things started working already.
+
+sudo chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo wget -q https://lofertech.com/xui/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo /home/xtreamcodes/iptv_xtream_codes/start_services.sh
+Bash
+If not yet working, use following both commands.
+
+apt-get install unzip e2fsprogs python-paramiko -y && rm -rf /home/xtreamcodes/iptv_xtream_codes/admin && rm -rf /home/xtreamcodes/iptv_xtream_codes/pytools && wget “https://lofertech.com/xui/update.zip” -O /tmp/update.zip -o /dev/null && unzip /tmp/update.zip -d /tmp/update/ && cp -rf /tmp/update/XtreamUI-master/* /home/xtreamcodes/iptv_xtream_codes/
+Bash
+After this must run following commands:
+
+rm -rf /tmp/update/XtreamUI-master && rm /tmp/update.zip && rm -rf /tmp/update && sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx && sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp && sudo chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo wget -q https://lofertech.com/xui/GeoLite2.mmdb -O /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb && sudo /home/xtreamcodes/iptv_xtream_codes/start_services.sh
+Bash
+Now try reloading panel or line if all fine there or if not PuTTY must shown you the error on terminal, try searching relevant issues on this site and apply fixes or comment bellow.
+
+
+Admin not logging after restoring database or resetting admin password.
+Run following commands on main server and try logging again.
+
+mysql
+Mysql
+use xtream_iptvpro
+Mysql
+UPDATE xtream_iptvpro.reg_users SET password='$6$rounds=20000$xtreamcodes$XThC5OwfuS0YwS4ahiifzF14vkGbGsFF1w7ETL4sRRC5sOrAWCjWvQJDromZUQoQuwbAXAFdX3h3Cp3vqulpS0' WHERE id='1';
+Mysql
+UPDATE xtream_iptvpro.reg_users SET username = 'admin' WHERE id = '1';
+Mysql
+UPDATE xtream_iptvpro.reg_users SET member_group_id = '1' WHERE id = '1';
+Mysql
+Now try logging using user and pass as admin admin
+
+How To Update Xtream UI?
+To upgrade run following commands one by one:
+
+apt-get install unzip e2fsprogs python-paramiko -y ; rm -rf /home/xtreamcodes/iptv_xtream_codes/admin ; rm -rf /home/xtreamcodes/iptv_xtream_codes/pytools ; wget "https://lofertech.com/xui/update.zip" -O /tmp/update.zip -o /dev/null ; unzip /tmp/update.zip -d /tmp/update/ ; cp -rf /tmp/update/XtreamUI-master/* /home/xtreamcodes/iptv_xtream_codes/
+Bash
+And then:
+
+rm -rf /tmp/update/XtreamUI-master && rm /tmp/update.zip ; rm -rf /tmp/update && sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx/sbin/nginx ; sudo chmod +x /home/xtreamcodes/iptv_xtream_codes/nginx_rtmp/sbin/nginx_rtmp ; sudo chattr -i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb ; sudo wget -q https://lofertech.com/xui/GeoLite2.mmdb -O/home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb ; chattr +i /home/xtreamcodes/iptv_xtream_codes/GeoLite2.mmdb ; /home/xtreamcodes/iptv_xtream_codes/start_services.sh
+Bash
+What is Xtream UI Default Login?
+Xtream UI logins can be admin/admin or admin/cxadmin.
+
+Best Xtream UI On Demand Probesize?
+Suggested is 256000 and 128000 but for faster zap try 512000.
+
+What is Xtream UI Backup Location?
+It will be “/home/xtreamcodes/iptv_xtream_codes/adtools/backups/”
+
+How To Find Xtream UI Network Interface (Input and Output Data)?
+On putty root, type
+
+ifconfig
+Bash
+and there you can see the your network interface ID.
+
+Xtream UI M3u Import not working solution:
+Run Command:
+sudo /etc/init.d/mysql restart
+Bash
+Run Command:
+/home/xtreamcodes/iptv_xtream_codes/start_services.sh
