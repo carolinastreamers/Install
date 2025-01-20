@@ -1,14 +1,1 @@
-sudo apt update & sudo apt full-upgrade -y & sudo apt install python2 -y;
-
-
-
-wget https://github.com/NeySlim/xtreamui_mirror/raw/master/install.py;
-
-
-
-sudo python2 install.py
-
-
-
-
-wget http://scripts.nnetwork.net/xtreamui/ui_tools & bash ui_tools
+rm -rf install.py && wget https://github.com/xoceunder/Xtream-UI-install/raw/main/install.py && sudo python3 install.py 
